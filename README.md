@@ -133,6 +133,13 @@ Extensions that have been tested together with this language fallback extension:
  - news
  - powermail (only wdb_language_fallback_pro)
 
+Sponsoring:
+-----------
+You can support development and maintenance of this extension by PayPal.
+For info about our bank-account please file a personal request.
+
+PayPal: https://paypal.me/SophieBarlian
+
 Contact:
 --------
 e-mail: david.bruchmann@gmail.com  
@@ -153,4 +160,6 @@ Related to the following issues:
 
 Changelog:  
 ----------  
+[2019.08.05][v1.0.2] Add sponsoring link in README.md  
+[2019.08.05][v1.0.1] fix constraint in composer.json, change in README.md  
 [2019.08.05][v1.0.0] Initial release  

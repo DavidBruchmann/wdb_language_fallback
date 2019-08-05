@@ -5,7 +5,7 @@
  */
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Language-fallback',
-    'description' => 'Fixes some issues concerning translation of TYPO3. Obtain the professional version for special extensions like powermail.',
+    'description' => 'Fixes some issues concerning language-fallback in TYPO3. Obtain the professional version for support of special extensions like powermail.',
     'category' => 'frontend',
     'constraints' => [
         'depends' => [
@@ -27,5 +27,5 @@ $EM_CONF[$_EXTKEY] = [
     'author' => 'David Bruchmann',
     'author_email' => 'david.bruchmann@gmail.com',
     'author_company' => 'Webdevelopment Barlian',
-    'version' => '1.0.0',
+    'version' => '1.0.2',
 ];

@@ -1,0 +1,16 @@
+config {
+    wdb_language_fallback {
+        # ===============
+        # keys below (like it, fr, de, ...) have to be chosen according to language-aspect below
+        # ===============
+        activeForLanguages {
+            it = 1
+            fr = 0
+            de = 0
+        }
+        # ===============
+        # typo3Language (it) | iso-639-1 (it) | twoLetterIsoCode (it) | hreflang (it-IT)
+        # ===============
+        languageAspect = typo3Language
+    }
+}

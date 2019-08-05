@@ -1,0 +1,37 @@
+{
+    "name": "wdb/wdb-language-fallback",
+    "type": "typo3-cms-extension",
+    "description": "Fixes some issues concerning language fallback in TYPO3. Obtain the professional version for special extensions like powermail.",
+    "authors": [
+        {
+            "name": "David Bruchmann",
+            "email": "david.bruchmann@gmail.com",
+            "homepage": "https://barlians.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "david.bruchmann@gmail.com",
+        "issues": "https://github.com/DavidBruchmann/wdb_language_fallback/issues",
+        "wiki": "https://github.com/DavidBruchmann/wdb_language_fallback/wiki",
+        "source": "https://github.com/DavidBruchmann/wdb_language_fallback",
+        "docs": "https://github.com/DavidBruchmann/wdb_language_fallback/tree/master/README.md"
+    },
+    "homepage": "https://barlians.com",
+    "license": ["GPL-3.0-or-later"],
+    "keywords": ["TYPO3 CMS"],
+    "version": "1.0.0",
+    "time": "2019-08-05",
+    "require": {
+        "typo3/cms-core": "^9.5",
+        "typo3/cms-frontend": "^9.5"
+    },
+    "conflict": {
+        "wdb/wdb-language-fallback-pro": "1.0.0-99.99.99"
+    },
+    "autoload": {
+        "psr-4": {
+            "WDB\\WdbLanguageFallback\\": "Classes/"
+        }
+    }
+}

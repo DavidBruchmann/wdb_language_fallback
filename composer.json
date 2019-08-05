@@ -27,7 +27,7 @@
         "typo3/cms-frontend": "^9.5"
     },
     "conflict": {
-        "wdb/wdb-language-fallback-pro": "1.0.0-99.99.99"
+        "wdb/wdb-language-fallback-pro": ">=1.0.0 <=99.99.99"
     },
     "autoload": {
         "psr-4": {

@@ -3,7 +3,7 @@ TYPO3 extension wdb_language_fallback
 
 The extension is solving some issues with language fallback in TYPO3.  
 Scenario to develop the extension was the following case:  
-
+```
 Default language (uid=0): GERMAN  
 Fallback for default language: none  
 
@@ -12,8 +12,8 @@ Fallback for French: none
 
 Language with uid=2: Italian  
 Fallback for Italian: French  
-
-TYPO3 never works correctly and displays for Italian German as fallback which is wrong.  
+```
+TYPO3 never works correctly and displays German as fallback for Italian which is wrong.  
 This extensions verifies the data and is assigning the right language as Fallback.  
 
 Concerning powermail this extension shows the forms correctly but the forms

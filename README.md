@@ -160,7 +160,7 @@ Related to the following issues:
 
 Changelog:  
 ----------  
-[2019.08.06][v1.1.0] fix coding-faults
+[2019.08.06][v1.1.0] fix coding-faults  
 [2019.08.05][v1.0.2] Add sponsoring link in README.md  
 [2019.08.05][v1.0.1] fix constraint in composer.json, change in README.md  
 [2019.08.05][v1.0.0] Initial release  

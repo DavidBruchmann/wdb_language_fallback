@@ -3,7 +3,7 @@
 namespace WDB\WdbLanguageFallback\Hooks\Frontend\Page;
 
 /**
- * This file is part of the "wdb_language_hook" Extension for TYPO3 CMS.
+ * This file is part of the "wdb_language_fallback" Extension for TYPO3 CMS.
  *
  * For the full copyright and license information, please read the
  * LICENSE.txt file that was distributed with this source code.
@@ -60,7 +60,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
     {
         $this->init();
         // Check if handling for the current language is configured
-        $languageAspect = $this->tsConfig['wdb_language_hook']['languageAspect'];
+        $languageAspect = $this->tsConfig['wdb_language_fallback']['languageAspect'];
         $languageKey = $this->langConfig[$languageAspect];
         $languageActivation = $this->getActiveForLanguages();
 
@@ -123,14 +123,8 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
             if($overlayRow && is_array($overlayRow) && count($overlayRow)) {
                 $row = $overlayRow;
             }
-            // DebuggerUtility::var_dump(['args'=>func_get_args(), '$row'=>$row, '$overlayRow'=>$overlayRow, ], __METHOD__.':'.__LINE__);
             return;
         }
-
-        // ###############
-        // Intinsic fields
-        // ###############
-        $overlayRow = $this->overlayItrinsicFields($originalRow, $overlayRow, $table);
 
         if(is_array($overlayRow) && count($overlayRow)){
             // #######################
@@ -173,7 +167,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         /*
         $this->init();
         // Check if handling for the current language is configured
-        $languageAspect = $this->tsConfig['wdb_language_hook']['languageAspect'];
+        $languageAspect = $this->tsConfig['wdb_language_fallback']['languageAspect'];
         $languageKey = $this->langConfig[$languageAspect];
         $languageActivation = $this->getActiveForLanguages();
         if(!isset($languageActivation[$languageKey]) || intval($languageActivation[$languageKey]) !== 1) {
@@ -241,7 +235,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
 
     protected function getActiveForLanguages()
     {
-        $languageActivation = $this->tsConfig['wdb_language_hook']['activeForLanguages'];
+        $languageActivation = $this->tsConfig['wdb_language_fallback']['activeForLanguages'];
         return $languageActivation;
     }
 
@@ -258,35 +252,5 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         }
         $languageChain = $parent->sys_language_uid . (count($languageChainArray) ? ',' . implode(',', $languageChainArray) : '');
         return $languageChain;
-    }
-
-    protected function getIntrinsicFields($config, $table)
-    {
-        $intrinsicFields = [];
-        if (isset($config)) {
-            foreach($config as $plugin => $pluginConfig) {
-                if (isset($pluginConfig['intrinsicFields'][$table])) {
-                    if(is_array($pluginConfig['intrinsicFields'][$table]) && count($pluginConfig['intrinsicFields'][$table])) {
-                        $intrinsicFields = $pluginConfig['intrinsicFields'][$table];
-                    }
-                    break;
-                }
-            }
-        }
-        return count($intrinsicFields) ? $intrinsicFields : false;
-    }
-
-    protected function overlayItrinsicFields($originalRow, $overlayRow, $table)
-    {
-        $this->initTsfe();
-        $config = GeneralUtility::removeDotsFromTS($GLOBALS['TSFE']->config['config']); //['intrinsicFields.']);
-        if (isset($config['plugin'])) {
-            if($intrinsicFields = $this->getIntrinsicFields($config['plugin'], $table)) {
-                foreach ($intrinsicFields as $count => $fieldname) {
-                    $overlayRow[$fieldname] = $originalRow[$fieldname];
-                }
-            }
-        }
-        return $overlayRow;
     }
 }

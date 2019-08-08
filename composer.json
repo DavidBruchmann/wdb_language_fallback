@@ -20,7 +20,7 @@
     "homepage": "https://barlians.com",
     "license": ["GPL-3.0-or-later"],
     "keywords": ["TYPO3 CMS"],
-    "version": "1.1.0",
+    "version": "1.1.1",
     "time": "2019-08-06",
     "require": {
         "typo3/cms-core": "^9.5",

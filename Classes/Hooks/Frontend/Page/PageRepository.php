@@ -31,6 +31,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
 
     protected function init()
     {
+        $this->initTsfe();
         $this->tsConfig = GeneralUtility::removeDotsFromTS($GLOBALS['TSFE']->config['config']); //['intrinsicFields.']);
 
         // @var TYPO3\CMS\Core\Http\ServerRequest

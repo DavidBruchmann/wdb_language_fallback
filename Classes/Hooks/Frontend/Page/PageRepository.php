@@ -25,14 +25,28 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecordOverlayHookInterface
 {
+    /**
+     * TypoScript configuration for this extension
+     *
+     * @var array
+     */
     protected $tsConfig = null;
 
+    /**
+     * SiteLanguage configuration for this extension
+     * values of \TYPO3\CMS\Core\Site\Entity\SiteLanguage
+     *
+     * @var array
+     */
     protected $langConfig = null;
 
+    /**
+     * init properties and TSFE
+     */
     protected function init()
     {
         $this->initTsfe();
-        $this->tsConfig = GeneralUtility::removeDotsFromTS($GLOBALS['TSFE']->config['config']); //['intrinsicFields.']);
+        $this->tsConfig = GeneralUtility::removeDotsFromTS($GLOBALS['TSFE']->config['config']);
 
         // @var TYPO3\CMS\Core\Http\ServerRequest
         // @deprecated $GLOBALS['TYPO3_REQUEST'] will be removed in future versions
@@ -47,7 +61,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
     }
 
     /**
-     * init TSFE if nit existing, required for some BE-modules
+     * init TSFE if not existing, required for some BE-modules
      */
     protected function initTsfe(){
         if (!isset($GLOBALS['TSFE'])) {
@@ -60,6 +74,18 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         }
     }
 
+    /**
+     * Hook-function for beginning of \TYPO3\CMS\Frontend\Page\PageRepository::getRecordOverlay().
+     *
+     * Function never returns anything but might alter $row and $sys_language_content by reference.
+     *
+     * @param string $table                  Table name
+     * @param array  &$row                   Record to overlay. Must contain uid, pid and $table]['ctrl']['languageField']
+     * @param int    &$sys_language_content  Pointer to the sys_language uid for content on the site.
+     * @param string $OLmode                 Overlay mode. If "hideNonTranslated" then records without translation will not be returned  un-translated but unset (and return value is FALSE)
+     * @param \TYPO3\CMS\Frontend\Page\PageRepository $parent
+     * @return void
+     */
     public function getRecordOverlay_preProcess($table, &$row, &$sys_language_content, $OLmode, \TYPO3\CMS\Frontend\Page\PageRepository $parent)
     {
         $this->init();
@@ -110,7 +136,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         $tableControl  = $GLOBALS['TCA'][$table]['ctrl'] ?? [];
         $languageField = $tableControl['languageField'];
         $transOrigPointerField = $tableControl['transOrigPointerField'];
-        $languageChain = $this->getFallbackChain($parent);
+        $languageChain = $this->getFallbackChain($parent, $OLmode);
 
         // ##########
         // OverlayRow
@@ -163,8 +189,19 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
     }
 
     /**
-     * $row as parameter here has already deleted data and is useless in most cases
-     * The method is required by the mandatory interface
+     * Hook-function for end of \TYPO3\CMS\Frontend\Page\PageRepository::getRecordOverlay().
+     * $row as parameter here has already deleted data and is useless in most cases.
+     * The method is required by the mandatory interface.
+     * Further condition is not required (based on activated languages) as $row must be an array and not empty in any case.
+     *
+     * Function never returns anything but might alter $row and $sys_language_content by reference.
+     *
+     * @param string $table                  Table name
+     * @param array  &$row                   Record to overlay. Must contain uid, pid and $table]['ctrl']['languageField']
+     * @param int    &$sys_language_content  Pointer to the sys_language uid for content on the site.
+     * @param string $OLmode                 Overlay mode. If "hideNonTranslated" then records without translation will not be returned  un-translated but unset (and return value is FALSE)
+     * @param \TYPO3\CMS\Frontend\Page\PageRepository $parent
+     * @return void
      */
     public function getRecordOverlay_postProcess($table, &$row, &$sys_language_content, $OLmode, \TYPO3\CMS\Frontend\Page\PageRepository $parent)
     {
@@ -190,6 +227,17 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         }
     }
 
+    /**
+     * Find $overlayRow for a data-record
+     *
+     * @param string $table                  Table name
+     * @param int    $uid                    uid of current page
+     * @param int    $pid                    pid of current page (uid of parent page)
+     * @param string $languageField          languageField like defined in TCA (usually "sys_language_uid")
+     * @param array  $languageChain          list of fallback languages
+     * @param string $transOrigPointerField  transOrigPointerField like defined in TCA (i.e. "l18n_parent")
+     * @return array $overlayRow
+     */
     protected function findOverlayRow($table, $uid, $pid, $languageField, $languageChain, $transOrigPointerField)
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -220,6 +268,14 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         return $overlayRow;
     }
 
+    /**
+     * Find $row by $table, $uid and $pid
+     *
+     * @param string $table                  Table name
+     * @param int    $uid                    uid of current page
+     * @param int    $pid                    pid of current page (uid of parent page)
+     * @return array $row
+     */
     protected function findByUid($table, $uid, $pid)
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
@@ -244,13 +300,29 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         return $row;
     }
 
+    /**
+     * Find configured languages that shall activate the hook-functions above
+     *
+     * @return array $languageActivation
+     */
     protected function getActiveForLanguages()
     {
         $languageActivation = $this->tsConfig['wdb_language_fallback']['activeForLanguages'];
         return $languageActivation;
     }
 
-    protected function getFallbackChain($parent){
+    /**
+     * Find $fallbackChain for current language.
+     * @TODO: Does it respect $OLmode in methods of $parent?
+     * @TODO: Is $OLmode as parameter here required at all?
+     * @TODO: Is condition with 'MathUtility::canBeInterpretedAsInteger($languageKey)' correct?
+     *        Seems value could be string too (i.e. 'pageNotFound')
+     *
+     * @param  \TYPO3\CMS\Frontend\Page\PageRepository $parent
+     * @param  string $OLmode          Overlay mode. If "hideNonTranslated" then records without translation will not be returned  un-translated but unset (and return value is FALSE)
+     * @return string $languageChain
+     */
+    protected function getFallbackChain($parent, $OLmode){
         $languageAspect = $parent->context->getAspect('language');
         $fallbackChain = $languageAspect->getFallbackChain();
         // $fallbackChain =>  [0 => 1, 1 => 0, 2 => 'pageNotFound']

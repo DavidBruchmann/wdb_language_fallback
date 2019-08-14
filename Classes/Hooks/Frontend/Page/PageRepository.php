@@ -165,18 +165,25 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
     public function getRecordOverlay_postProcess($table, &$row, &$sys_language_content, $OLmode, \TYPO3\CMS\Frontend\Page\PageRepository $parent)
     {
         /*
+        // ##############################
+        // SOME BASIC LOGIC (IF REQUIRED)
+        // ##############################
         $this->init();
         // Check if handling for the current language is configured
-        $languageAspect = $this->tsConfig['wdb_language_fallback']['languageAspect'];
+        $languageAspect = $this->tsConfig['wdb_language_hook']['languageAspect'];
         $languageKey = $this->langConfig[$languageAspect];
         $languageActivation = $this->getActiveForLanguages();
         if(!isset($languageActivation[$languageKey]) || intval($languageActivation[$languageKey]) !== 1) {
             return;
         }
-
+        
         // ... HERE ANY CONTENT ...
-
+        
         */
+        
+        if(!is_array($row) || count($row) === 0) {
+            $row = false;
+        }
     }
 
     protected function findOverlayRow($table, $uid, $pid, $languageField, $languageChain, $transOrigPointerField)

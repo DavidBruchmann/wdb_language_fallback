@@ -114,6 +114,7 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
 
         $originalRow = $row;
         if($crippledRow) {
+            // in case of missing data just return, will throw an Exception somewhere else
             if(!$table) {
                 // throw new \InvalidArgumentException('Provided data never include a table, therefore no language-overlay is possible!');
                 return;

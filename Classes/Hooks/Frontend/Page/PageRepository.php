@@ -46,6 +46,9 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         $this->langConfig = $siteLanguageObject->toArray();
     }
 
+    /**
+     * init TSFE if nit existing, required for some BE-modules
+     */
     protected function initTsfe(){
         if (!isset($GLOBALS['TSFE'])) {
            $id       = GeneralUtility::_GP('id')       ? GeneralUtility::_GP('id')       : 0;
@@ -177,11 +180,11 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         if(!isset($languageActivation[$languageKey]) || intval($languageActivation[$languageKey]) !== 1) {
             return;
         }
-        
+
         // ... HERE ANY CONTENT ...
-        
+
         */
-        
+
         if(!is_array($row) || count($row) === 0) {
             $row = false;
         }

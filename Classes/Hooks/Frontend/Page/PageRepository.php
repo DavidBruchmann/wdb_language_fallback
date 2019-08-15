@@ -88,20 +88,32 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
      */
     public function getRecordOverlay_preProcess($table, &$row, &$sys_language_content, $OLmode, \TYPO3\CMS\Frontend\Page\PageRepository $parent)
     {
+        // in case of missing data just return, will throw an Exception somewhere else
+        if(!$this->dataValid($table, $row)) {
+            return;
+        }
         $this->init();
         // Check if handling for the current language is configured
         $languageAspect = $this->tsConfig['wdb_language_fallback']['languageAspect'];
         $languageKey = $this->langConfig[$languageAspect];
         $languageActivation = $this->getActiveForLanguages();
 
+        // Do nothing if handling for the current language is not configured for being executed
         if(!isset($languageActivation[$languageKey]) || intval($languageActivation[$languageKey]) !== 1) {
             return;
         }
 
-        // if tt_content['l18n_diffsource'] is not set it must be a TypoScript-Object
-        // TODO: make it more intelligent, that it's working for other tables too
+        $tableControl  = $GLOBALS['TCA'][$table]['ctrl'] ?? [];
+        $languageField = $tableControl['languageField'];
+        $transOrigPointerField = $tableControl['transOrigPointerField'];
+        $transOrigDiffSourceField = $tableControl['transOrigDiffSourceField'];
+        $languageChain = $this->getFallbackChain($parent, $OLmode);
+        $languageArray = GeneralUtility::trimExplode(',', $languageChain); //, $removeEmptyValues = false, $limit = 0);
+
+        // if $row['l18n_diffsource'] is not set it must be a TypoScript-Object
+        // or another individual queried data-row
         $crippledRow = false;
-        if($table == 'tt_content' && !isset($row['l18n_diffsource'])) {
+        if($transOrigPointerField && !isset($row[$transOrigDiffSourceField])) {
             $crippledRow = true;
         }
         elseif(strpos($table, '_domain_model_')) {
@@ -114,30 +126,16 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
 
         $originalRow = $row;
         if($crippledRow) {
-            // in case of missing data just return, will throw an Exception somewhere else
-            if(!$table) {
-                // throw new \InvalidArgumentException('Provided data never include a table, therefore no language-overlay is possible!');
-                return;
-            }
-            if(!$row) {
-                // throw new \InvalidArgumentException('Provided data never include a row, therefore no language-overlay is possible!');
-                return;
-            }
-            if(!isset($row['uid'])) {
-                // throw new \InvalidArgumentException('Provided data never include an uid, therefore no language-overlay is possible!');
-                return;
-            }
-            if(!isset($row['pid'])) {
-                // throw new \InvalidArgumentException('Provided data never include a pid, therefore no language-overlay is possible!');
-                return;
-            }
             $originalRow = $this->findByUid($table, $row['uid'], $row['pid']);
         }
 
-        $tableControl  = $GLOBALS['TCA'][$table]['ctrl'] ?? [];
-        $languageField = $tableControl['languageField'];
-        $transOrigPointerField = $tableControl['transOrigPointerField'];
-        $languageChain = $this->getFallbackChain($parent, $OLmode);
+        // this returns the original row if it's already in the required language or for all languages (-1)
+        // TODO: testing
+        if($originalRow[$languageField] == $languageArray[0] || $originalRow[$languageField] == '-1'){
+            $row = $originalRow;
+            $sys_language_content = $originalRow[$languageField];
+            return;
+        }
 
         // ##########
         // OverlayRow
@@ -206,25 +204,25 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
      */
     public function getRecordOverlay_postProcess($table, &$row, &$sys_language_content, $OLmode, \TYPO3\CMS\Frontend\Page\PageRepository $parent)
     {
-        /*
-        // ##############################
-        // SOME BASIC LOGIC (IF REQUIRED)
-        // ##############################
+        // ################
+        // SOME BASIC LOGIC
+        // ################
         $this->init();
         // Check if handling for the current language is configured
         $languageAspect = $this->tsConfig['wdb_language_hook']['languageAspect'];
         $languageKey = $this->langConfig[$languageAspect];
         $languageActivation = $this->getActiveForLanguages();
+
         if(!isset($languageActivation[$languageKey]) || intval($languageActivation[$languageKey]) !== 1) {
             return;
         }
 
-        // ... HERE ANY CONTENT ...
-
-        */
-
         if(!is_array($row) || count($row) === 0) {
-            $row = false;
+            if($table == 'sys_file_metadata'){
+                $row = null;
+            } else {
+                $row = false;
+            }
         }
     }
 
@@ -336,5 +334,26 @@ class PageRepository implements \TYPO3\CMS\Frontend\Page\PageRepositoryGetRecord
         }
         $languageChain = $parent->sys_language_uid . (count($languageChainArray) ? ',' . implode(',', $languageChainArray) : '');
         return $languageChain;
+    }
+
+    protected function dataValid($table, $row)
+    {
+        if(!$table) {
+            // throw new \InvalidArgumentException('Provided data never include a table, therefore no language-overlay is possible!');
+            return false;
+        }
+        if(!$row) {
+            // throw new \InvalidArgumentException('Provided data never include a row, therefore no language-overlay is possible!');
+            return false;
+        }
+        if(!isset($row['uid'])) {
+            // throw new \InvalidArgumentException('Provided data never include an uid, therefore no language-overlay is possible!');
+            return false;
+        }
+        if(!isset($row['pid'])) {
+            // throw new \InvalidArgumentException('Provided data never include a pid, therefore no language-overlay is possible!');
+            return false;
+        }
+        return true;
     }
 }

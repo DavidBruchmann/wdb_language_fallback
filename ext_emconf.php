@@ -27,5 +27,5 @@ $EM_CONF[$_EXTKEY] = [
     'author' => 'David Bruchmann',
     'author_email' => 'david.bruchmann@gmail.com',
     'author_company' => 'Webdevelopment Barlian',
-    'version' => '1.2.0',
+    'version' => '1.3.0',
 ];

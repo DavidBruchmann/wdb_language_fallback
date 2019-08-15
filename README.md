@@ -232,6 +232,8 @@ offensive user-name might be a reason for me to decline a contact-request.
 
 ## Changelog:  
 
+[2019.08.15][v1.3.0] fix sys_file_metadata needs null instead of false #9
+[2019.08.14][v1.2.0] fix return value for missing results (false), add annotations and comments, remove version from composer.json, fix missing usage of initTsfe()
 [2019.08.06][v1.1.1] reformat and add TODOs and chapter `intrinsicFields` in README.md  
 [2019.08.06][v1.1.0] fix coding-faults  
 [2019.08.05][v1.0.2] Add sponsoring link in README.md  

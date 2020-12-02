@@ -228,7 +228,8 @@ offensive user-name might be a reason for me to decline a contact-request.
    and provide solution if not.
  - Check outdated extension "languagefallback" for features and options.
    Perhaps even a better solution is / could be used than the used hook in 
-   `wdb_language_fallback`
+   `wdb_language_fallback`.
+ - see https://review.typo3.org/c/Packages/TYPO3.CMS/+/66694 if that might help or even change the basic problem(s).
 
 ## Changelog:  
 
